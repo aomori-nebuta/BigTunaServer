@@ -5,10 +5,12 @@ var PostController = require('../Controllers/PostController.js');
 
 var User = require('../Models/User');
 
+var NullChecker = require('../Utilities/common.js')
+
 //gets user information for the given user id
 router.get('/:userId', async function (req, res) {
 	let userId = req.params.userId;
-	
+
 	let user = await UserController.getUserById(userId);
 	res.send(user);
 });
@@ -29,7 +31,7 @@ router.patch('/:userId', async function (req, res) {
 	userUpdateOptions.userName = req.query.username;
 	userUpdateOptions.profileUri = req.query.profileuri;
 
-	if (!userUpdateOptions.userId) {
+	if (!NullChecker([userUpdateOptions.userId])) {
 		//return some error
 		return "error";
 	}
@@ -43,7 +45,7 @@ router.post('/', async function (req, res) {
 	let userId = req.query.userid;
 	let userName = req.query.username;
 	let profileUri = req.query.profileuri;
-	if (!userId || !userName) {
+	if (!NullChecker([userId, userName])) {
 		//return some error
 		return "error";
 	}

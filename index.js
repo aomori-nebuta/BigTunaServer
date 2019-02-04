@@ -1,6 +1,10 @@
-var express = require('express')
-var app = express();
-var routes = require('./Routes/routes');
+const express = require('express')
+const app = express();
+const routes = require('./Routes/routes');
+const bb = require('express-busboy');
+bb.extend(app, {
+	upload: true
+});
 
 app.use(express.static('public'));
 

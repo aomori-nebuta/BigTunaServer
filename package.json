@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.16.4",
+    "express-busboy": "^7.0.1",
     "mongoose": "^5.4.5"
   },
   "devDependencies": {

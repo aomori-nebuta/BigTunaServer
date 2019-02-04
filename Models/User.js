@@ -5,7 +5,6 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var User = new Schema({
-	userId: String,
 	userName: String,
 	profileUri: String,
 	//followers: [String],
