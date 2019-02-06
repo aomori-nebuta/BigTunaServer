@@ -1,23 +1,17 @@
-var db = require('mongoose').connection;
-var Post = require('../Models/Post');
-var NullChecker = require('../Utilities/common.js');
+const Mongoose = require('mongoose');
+const db = Mongoose.connection;
+const Post = require('../Models/Post');
 
 class PostController {
 	//getters
 	//gets a list of posts given a filter
 	static getPosts(filter) {
-
+		return Post.find(filter);
 	}
 
 	//get information for a post given a post id
 	static getPostById(id) {
-		return Post.find({postId: id}, (err, postInfo) => {
-			if (err) {
-				return console.error(err);
-			}
-
-			return postInfo;
-		});
+		return Post.find({ _id: Mongoose.Types.ObjectId(id) });
 	}
 
 	//gets a list of posts within a location radius with the given latitude and longitude as the center
@@ -32,51 +26,30 @@ class PostController {
 					}
 				}
 			}
-		}, (err, postInfo) => {
-			if (err) {
-				return console.error(err);
-			}
-
-			return postInfo;
 		});
 	}
 
 	//setters
-	static addPost(uplId, resId, desc, long, lat, tags) {
-		
-		let arrayToCheck = [uplId,
-			resId,
-			long,
-			lat];
-		if (NullChecker(arrayToCheck)) {
-			//return some error
-			throw Error("ERROR: Some required fields are null");
-		}
-
-		var newPost = new Post({
-			
-			uploaderId: uplId,
-			restaurantId: resId,
-			description: desc,
-
+	static addPost(addOptions) {
+		const addQuery = {
+			uploaderId: addOptions.uploaderId,
+			restaurantId: addOptions.restaurantId,
+			description: addOptions.description,
 			location: {
 				type: "Point",
-				coordinates: [parseInt(long), parseInt(lat)]
-			},
-			tags: tags,
-			likedBy: [],
-			commentedBy: [],
-			bookmarkedBy: []
-
-		});
-
-		newPost.save((err, success) => {
-			if (err) {
-				return console.error(err);
+				coordinates: [parseInt(addOptions.longitude), parseInt(addOptions.latitude)]
 			}
+		};
+		if (addOptions.tags) {
+			addQuery.tags = addOptions.tags;
+		}
+		if (addOptions.restaurantRating) {
+			addQuery.restaurantRating = addOptions.restaurantRating;
+		}
 
-			return success;
-		});
+		var newPost = new Post(addQuery);
+
+		return newPost.save();
 	}
 
 	static updatePost(updateOptions) {
@@ -88,22 +61,15 @@ class PostController {
 			updateQuery.profileUri = updateOptions.profileUri;
 		}
 
-		return User.updateOne({ userId: updateOptions.userId }, { $set: updateQuery }, (err, success) => {
-			if (err) {
-				return console.error(err);
-			}
-
-			//TODO
-			return "success";
-		});
+		return Post.updateOne({ userId: updateOptions.userId }, { $set: updateQuery });
 	}
 
 	static interactWithPost(interactOptions) {
 
 	}
 
-	static deletePost(postId) {
-		
+	static deletePostById(postId) {
+		return Post.findOneAndDelete({ _id: Mongoose.Types.ObjectId(postId) });
 	}
 }
 

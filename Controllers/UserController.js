@@ -1,4 +1,5 @@
-var db = require('mongoose').connection;
+const Mongoose = require('mongoose');
+const db = Mongoose.connection;
 var User = require('../Models/User');
 
 class UserController {

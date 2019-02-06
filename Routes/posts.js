@@ -1,65 +1,55 @@
-const router = require('express').Router();
+//TODO individual error handling
+//see https://thecodebarbarian.com/80-20-guide-to-express-error-handling
+require('express-async-errors');
+const app = require('express')();
 
-var PostController = require('../Controllers/PostController.js');
+const PostController = require('../Controllers/PostController.js');
 
 //gets a list of posts, must send user auth token
 //used for retrieving home screen discovery posts
 //TODO security & batch
-router.get('/', async function (req, res) {
-
+app.get('/', async function (req, res) {
 	//TODO, create filter object and pass
 	PostController.getPosts();
 });
 
 //gets information for the given post id
-router.get('/:postId', async function (req, res) {
-	try {
-		let result = await PostController.getPostById(req.params.postId);
-		res.status(200).send({
-			response: {
-				result: result
-			}
-		});
-	} catch (err) {
-		res.status(500).send(err);
-	}	
+app.get('/:postId', async function (req, res) {
+	const result = await PostController.getPostById(req.params.postId);
+
+	res.status(200).send(result);
 });
 
 //TODO food post
 //TODO file upload handling
 //TODO validate post adding
-router.post('/', async function (req, res) {
-	let uploaderId = req.body.userId;
-	let restaurantId = req.body.restaurantId || null;
-	let description = req.body.description;
-	let longitude = req.body.longitude;
-	let latitude = req.body.latitude;
-	let tags = req.body.tags.split[","] || []; //must be comma separated string
-	
-	//let files = req.files;
-
-	try {
-		let result = await PostController.addPost(
-			uploaderId,
-			restaurantId,
-			description,
-			longitude,
-			latitude,
-			tags
-		);
-		res.status(201).send({
-			response: "post created for user " + uploaderId
-		});
-	} catch (err) {
-		res.status(500).send(err);
+app.post('/', async (req, res) => {
+	let addOptions = {
+		uploaderId: req.body.userId,
+		restaurantId: req.body.restaurantId,
+		restaurantRating: req.body.restaurantRating,
+		description: req.body.description,
+		longitude: req.body.longitude,
+		latitude: req.body.latitude,
+		tags: []
+	};
+	if (req.body.tags) {
+		updateOptions.tags = req.body.tags.split[","]; //must be comma separated string
 	}
+	//let files = req.files;
+	const result = await PostController.addPost(addOptions);
+
+	res.status(201).send({
+		response: result
+	});
 });
 
+//TODO finish method
 //TODO authentication
 //TODO be able to upload more photos/remove photos
 //updates a post, used when editing a post or when other users interact with the post (like, comment, bookmark)
-router.patch('/:postId', async function (req, res) {
-	let actionType = req.body.action;
+app.patch('/:postId', async function (req, res) {
+	const actionType = req.body.action;
 	let updateOptions = { postId: req.params.postId };
 	
 	try {
@@ -70,8 +60,9 @@ router.patch('/:postId', async function (req, res) {
 				updateOptions.removeTags = req.body.removeTags.split[","] || []; //must be comma separated string
 
 				let result = await PostController.updatePost(updateOptions);
+				
 				res.status(200).send({
-					response: "post updated for postId " + updateOptions.postId
+					response: result
 				});
 				break;
 			}
@@ -79,8 +70,9 @@ router.patch('/:postId', async function (req, res) {
 				updateOptions.addLikes = req.body.addLikes.split[","] || []; //must be comma separated string
 				
 				let result = await PostController.interactWithPost(updateOptions);
+				
 				res.status(200).send({
-					response: "post updated for postId " + updateOptions.postId
+					response: result
 				});
 				break;
 			}
@@ -116,17 +108,11 @@ router.patch('/:postId', async function (req, res) {
 });
 
 //delete a post
-router.delete('/:postId', async function (req, res) {
-	try {
-		let result = PostController.deletePostById(req.params.postId);
-		res.status(200).send({
-			response: "post deleted for postId " + updateOptions.postId
-		});
-
-	} catch (err) {
-		res.status(500).send(err);
-	}
+app.delete('/:postId', async function (req, res) {
+	const result = await PostController.deletePostById(req.params.postId);
+	
+	res.status(200).send(result);
 });
 
 
-module.exports = router;
+module.exports = app;

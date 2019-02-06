@@ -1,10 +1,11 @@
-const router = require('express').Router();
+const express = require('express');
+const app = express();
 
-router.use("/users", require("./users"));
-router.use("/posts", require("./posts"));
+app.use("/users", require("./users"));
+app.use("/posts", require("./posts"));
 
-router.get('/', (req, res) => {
+app.get('/', (req, res) => {
 	res.status(200).json({ message: 'Connected!'});
 });
 
-module.exports = router;
+module.exports = app;

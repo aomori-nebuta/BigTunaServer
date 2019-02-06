@@ -5,7 +5,10 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var User = new Schema({
-	userName: String,
+	userName: {
+		type: String,
+		required: true
+	},
 	profileUri: String,
 	//followers: [String],
 	posts: [String]
