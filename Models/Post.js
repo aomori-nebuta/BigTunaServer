@@ -28,7 +28,7 @@ var Post = new Schema({
 	}, //only updated for uploader interactions
 
 	//display info
-	uploaderId: {
+	userId: {
 		type: Schema.Types.ObjectId,
 		required: true
 	},
@@ -52,15 +52,15 @@ var Post = new Schema({
 		type: [String],
 		default: []
 	}, //editable
-	likedBy: {
+	likes: {
 		type: [Schema.Types.ObjectId],
 		default: []
 	}, //editable
-	commentedBy: {
+	comments: {
 		type: [Schema.Types.ObjectId],
 		default: []
 	}, //editable
-	bookmarkedBy: {
+	bookmarks: {
 		type: [Schema.Types.ObjectId],
 		default: []
 	}, //editable

@@ -6,12 +6,49 @@ const app = require('express')();
 var UserController = require('../Controllers/UserController.js');
 const PostController = require('../Controllers/PostController.js');
 
+const PostsActionType = Object.freeze({
+	DISCOVER: "discover",
+	EDIT: "edit",
+	INTERACT: "interact",
+});
+
+const METERS_PER_MILE = 1609.34;
+
 //gets a list of posts, must send user auth token
 //used for retrieving home screen discovery posts
 //TODO security & batch
 app.get('/', async function (req, res) {
-	//TODO, create filter object and pass
-	PostController.getPosts();
+	switch (req.query.action) {
+		case PostsActionType.DISCOVER: {
+			const filter = {};
+
+			if (req.query.tags) {
+				filter.tags = {
+					$all: req.query.tags.replace(/\s\s*/g,"").trim().split(",") //must be comma separated string
+				}
+			}
+			//TODO, throw incorrect format error if some but not all of these params exist
+			if (req.query.longitude && req.query.latitude && req.query.radius) {
+				filter.location = {
+					$geoNear: {
+						$maxDistance: parseFloat(req.query.radius) * METERS_PER_MILE,
+						$geometry: {
+							type: "Point",
+							coordinates: [parseFloat(req.query.longitude), parseFloat(req.query.latitude)]
+						}
+					}
+				}
+			}
+
+			const result = await PostController.getPosts(filter);
+
+			res.status(200).send(result);
+
+			break;
+		}
+		default:
+			throw Error("Unauthorized attempt to grab all posts");
+	}
 });
 
 //gets information for the given post id
@@ -25,8 +62,8 @@ app.get('/:postId', async function (req, res) {
 //TODO file upload handling
 //TODO validate post adding
 app.post('/', async (req, res) => {
-	const addOptions = {
-		uploaderId: req.body.userId,
+	const options = {
+		userId: req.body.userId,
 		restaurantId: req.body.restaurantId,
 		restaurantRating: req.body.restaurantRating,
 		description: req.body.description,
@@ -34,19 +71,16 @@ app.post('/', async (req, res) => {
 		latitude: req.body.latitude
 	};
 	if (req.body.tags) {
-		updateOptions.tags = req.body.tags.split[","]; //must be comma separated string
+		options.tags = req.body.tags.replace(/\s\s*/g,"").trim().split(","); //must be comma separated string
 	}
 	//let files = req.files;
-	const postResult = await PostController.addPost(addOptions);
-	console.log("postResults: ",postResult);
+	const postResult = await PostController.addPost(options);
 	const userResult = await UserController.updateUserPost({
 		userId: req.body.userId,
 		postId: postResult._id
 	});
 
-	res.status(201).send({
-		response: userResult
-	});
+	res.status(201).send(userResult);
 });
 
 //TODO finish method
@@ -54,60 +88,36 @@ app.post('/', async (req, res) => {
 //TODO be able to upload more photos/remove photos
 //updates a post, used when editing a post or when other users interact with the post (like, comment, bookmark)
 app.patch('/:postId', async function (req, res) {
-	const actionType = req.body.action;
-	let updateOptions = { postId: req.params.postId };
-	
-	try {
-		switch (req.body.action) {
-			case PostActionType.EDIT: {
-				updateOptions.description = req.body.description;
-				updateOptions.addTags = req.body.addTags.split[","] || []; //must be comma separated string
-				updateOptions.removeTags = req.body.removeTags.split[","] || []; //must be comma separated string
+	const options = { postId: req.params.postId };
 
-				let result = await PostController.updatePost(updateOptions);
-				
-				res.status(200).send({
-					response: result
-				});
-				break;
+	switch (req.query.action) {
+		case PostsActionType.EDIT: {
+			options.restaurantId = Mongoose.Types.ObjectId(req.body.restaurantId);
+			options.restaurantRating = parseInt(req.body.restaurantRating);
+			options.description = req.body.description;
+			if (req.body.tags) {
+				options.tags = req.body.tags.replace(/\s\s*/g,"").trim().split(","); //must be comma separated string
 			}
-			case PostActionType.ADDLIKE: {
-				updateOptions.addLikes = req.body.addLikes.split[","] || []; //must be comma separated string
-				
-				let result = await PostController.interactWithPost(updateOptions);
-				
-				res.status(200).send({
-					response: result
-				});
-				break;
-			}
-			case PostActionType.REMOVELIKE: {
-				updateOptions.removeLikes = req.body.removeLikes.split[","] || []; //must be comma separated string
-				break;
-			}
-			case PostActionType.ADDCOMMENT: {
-				updateOptions.addComments = req.body.addComments.split[","] || []; //must be comma separated string
-				break;
-			}
-			case PostActionType.REMOVECOMMENT: {
-				updateOptions.removeComments = req.body.removeComments.split[","] || []; //must be comma separated string
-				break;
-			}
-			case PostActionType.ADDBOOKMARK: {
-				updateOptions.addBookmarks = req.body.addBookmarks.split[","] || []; //must be comma separated string
-				break;
-			}
-			case PostActionType.REMOVEBOOKMARK: {
-				updateOptions.removeBookmarks = req.body.removeBookmarks.split[","] || []; //must be comma separated string
-				break;
-			}
-			default: {
-				res.status(500).send(Error("action type was not supplied"));
-				break;
-			}
+
+			const result = await PostController.updatePost(options);
+			
+			res.status(200).send(result);
+			break;
 		}
-	} catch (err) {
-		res.status(500).send(err);
+		case PostsActionType.INTERACT: {
+			options.interactionAction = req.body.interactionAction;
+			options.interactionType = req.body.interactionType;
+			options.interactorId = req.body.interactorId;
+
+			const result = await PostController.updatePostInteractions(options);
+			
+			res.status(200).send(result);
+			break;
+		}
+		default: {
+			throw Error("action type was not supplied");
+			break;
+		}
 	}
 		
 });

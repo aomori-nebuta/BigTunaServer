@@ -50,7 +50,6 @@ class UserController {
 	}
 
 	static updateUserPost(options) {
-		console.log("options: ", options);
 		return User.updateOne({ _id: Mongoose.Types.ObjectId(options.userId) }, { $push: { posts: options.postId } });
 	}
 

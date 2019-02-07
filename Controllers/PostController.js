@@ -14,25 +14,10 @@ class PostController {
 		return Post.find({ _id: Mongoose.Types.ObjectId(id) });
 	}
 
-	//gets a list of posts within a location radius with the given latitude and longitude as the center
-	static getPostsByLocation(long, lat, radius) {
-		return Post.find({
-			location: {
-				$near: {
-					$maxDistance: radius,
-					$geometry: {
-						type: "Point",
-						coordinates: [long, lat]
-					}
-				}
-			}
-		});
-	}
-
 	//setters
 	static addPost(options) {
 		const query = {
-			uploaderId: Mongoose.Types.ObjectId(options.uploaderId),
+			userId: Mongoose.Types.ObjectId(options.userId),
 			restaurantId: Mongoose.Types.ObjectId(options.restaurantId),
 			description: options.description,
 			location: {
@@ -54,18 +39,32 @@ class PostController {
 
 	static updatePost(options) {
 		const query = {};
-		if (options.description) {
-			query.description = options.description;
-		}
-		if (options.addTags) {
-			query.profileUri = options.profileUri;
+
+		Object.entries(options).forEach((entry) => {
+			if (entry[1]) {
+				query[entry[0]] = entry[1];
+			}
+		});
+
+		if (options.longitude && options.latitude) {
+			query.location = {
+				type: "Point",
+				coordinates: [parseInt(options.longitude), parseInt(options.latitude)]
+			}
 		}
 
-		return Post.updateOne({ _id: Mongoose.Types.ObjectId(options.userId) }, { $set: query });
+		query.updatedAt = Date.now;
+
+		return Post.updateOne({ _id: Mongoose.Types.ObjectId(options.postId) }, { $set: query });
 	}
 
-	static interactWithPost(interactOptions) {
-
+	static updatePostInteractions(options) {
+		const query = {}
+		query[options.interactionAction] = {};
+		query[options.interactionAction][options.interactionType] = Mongoose.Types.ObjectId(options.interactorId);
+		console.log("options: ", options);
+		console.log("query: ", query);
+		return Post.updateOne({ _id: Mongoose.Types.ObjectId(options.postId) }, query);
 	}
 
 	static deletePostById(postId) {

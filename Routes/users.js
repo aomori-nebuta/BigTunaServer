@@ -26,7 +26,7 @@ app.get('/:userId/posts', async function (req, res) {
 //updates user information for the given id
 //TODO security/user auth token
 app.patch('/:userId', async function (req, res) {
-	const updateOptions = {
+	const options = {
 		userId: req.params.userId,
 		userName: req.body.userName,
 		fullName: req.body.fullName,
@@ -36,14 +36,14 @@ app.patch('/:userId', async function (req, res) {
 		latitude: req.body.latitude
 	};
 
-	const result = await UserController.updateUser(updateOptions);
+	const result = await UserController.updateUser(options);
 
 	res.send(result);
 });
 
 //adds a user to the database, used by the auth service when creating a new account
 app.post('/', async function (req, res) {
-	const addOptions = {
+	const options = {
 		userName: req.body.userName,
 		fullName: req.body.fullName,
 		profileUri: req.body.profileUri,
@@ -52,7 +52,7 @@ app.post('/', async function (req, res) {
 		latitude: req.body.latitude
 	}
 
-	const result = await UserController.addUser(addOptions);
+	const result = await UserController.addUser(options);
 
 	res.send(result);
 });
