@@ -10,6 +10,7 @@ const PostsActionType = Object.freeze({
 	DISCOVER: "discover",
 	EDIT: "edit",
 	INTERACT: "interact",
+	COMMENT: "comment"
 });
 
 const METERS_PER_MILE = 1609.34;
@@ -83,7 +84,6 @@ app.post('/', async (req, res) => {
 	res.status(201).send(userResult);
 });
 
-//TODO finish method
 //TODO authentication
 //TODO be able to upload more photos/remove photos
 //updates a post, used when editing a post or when other users interact with the post (like, comment, bookmark)
@@ -110,6 +110,17 @@ app.patch('/:postId', async function (req, res) {
 			options.interactorId = req.body.interactorId;
 
 			const result = await PostController.updatePostInteractions(options);
+			
+			res.status(200).send(result);
+			break;
+		}
+		case PostsActionType.COMMENT: {
+			options.commentAction = req.body.commentAction;
+			options.text = req.body.text;
+			options.userId = req.body.userId;
+			options.commentId = req.body.commentId;
+
+			const result = await PostController.updatePostComments(options);
 			
 			res.status(200).send(result);
 			break;

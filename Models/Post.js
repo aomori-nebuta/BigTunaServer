@@ -5,15 +5,31 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var FoodInfo = new Schema({
-	id: String,
-	imageUri: String,
-	description: String,
+	imageUri: {
+		type: String,
+		required: true
+	},
+	description: {
+		type: String,
+		required: true
+	}, // editable
 	menuItemId: String, //used to reference which food item it is in the restaurant
 	priceRange: { type: Number,
 		min: 1,
 		max: 5
 	},
 	recommended: Boolean
+});
+
+var Comment = new Schema ({
+	userId: {
+		type: Schema.Types.ObjectId,
+		required: true
+	},
+	text: {
+		type: String,
+		required: true
+	}
 });
 
 var Post = new Schema({
@@ -57,7 +73,7 @@ var Post = new Schema({
 		default: []
 	}, //editable
 	comments: {
-		type: [Schema.Types.ObjectId],
+		type: [Comment],
 		default: []
 	}, //editable
 	bookmarks: {

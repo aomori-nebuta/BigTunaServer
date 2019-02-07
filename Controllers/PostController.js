@@ -62,9 +62,26 @@ class PostController {
 		const query = {}
 		query[options.interactionAction] = {};
 		query[options.interactionAction][options.interactionType] = Mongoose.Types.ObjectId(options.interactorId);
-		console.log("options: ", options);
-		console.log("query: ", query);
+		
 		return Post.updateOne({ _id: Mongoose.Types.ObjectId(options.postId) }, query);
+	}
+
+	static updatePostComments(options) {
+		const query = {};
+		query[options.commentAction] = {
+			comments: {}
+		};
+
+		if (options.text && options.userId) {
+			query[options.commentAction].comments.userId = Mongoose.Types.ObjectId(options.userId);
+			query[options.commentAction].comments.text = options.text;
+		} else if (options.commentId) {
+			query[options.commentAction].comments._id = options.commentId;
+		} else {
+			throw Error("incorrect format for comment action type");
+		}
+
+		return Post.findByIdAndUpdate( Mongoose.Types.ObjectId(options.postId), query);
 	}
 
 	static deletePostById(postId) {

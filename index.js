@@ -28,8 +28,11 @@ app.use((err, req, res, next) => {
 var mongoose = require('mongoose');
 
 //Set up default mongoose connection
-var mongoDB = 'mongodb://127.0.0.1/store';
-mongoose.connect(mongoDB, { useNewUrlParser: true });
+var mongoDbUri = 'mongodb://127.0.0.1/store';
+mongoose.connect(mongoDbUri, {
+	useCreateIndex: true,
+	useNewUrlParser: true,
+});
 //Get the default connection
 var db = mongoose.connection;
 //Bind connection to error event (to get notification of connection errors)
