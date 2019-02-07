@@ -19,17 +19,21 @@ app.get('/:userId/posts', async function (req, res) {
 	}
 
 	const result = await PostController.getPosts(filter);
-	
+
 	res.send(result);
 });
 
 //updates user information for the given id
 //TODO security/user auth token
 app.patch('/:userId', async function (req, res) {
-	let updateOptions = {
+	const updateOptions = {
 		userId: req.params.userId,
-		userName: req.query.username,
-		profileUri: req.query.profileuri
+		userName: req.body.userName,
+		fullName: req.body.fullName,
+		profileUri: req.body.profileUri,
+		description: req.body.description,
+		longitude: req.body.longitude,
+		latitude: req.body.latitude
 	};
 
 	const result = await UserController.updateUser(updateOptions);
@@ -39,13 +43,25 @@ app.patch('/:userId', async function (req, res) {
 
 //adds a user to the database, used by the auth service when creating a new account
 app.post('/', async function (req, res) {
-	let userId = req.query.userid;
-	let userName = req.query.username;
-	let profileUri = req.query.profileuri;
+	const addOptions = {
+		userName: req.body.userName,
+		fullName: req.body.fullName,
+		profileUri: req.body.profileUri,
+		description: req.body.description,
+		longitude: req.body.longitude,
+		latitude: req.body.latitude
+	}
 
-	const result = await UserController.addUser(userId, userName, profileUri);
+	const result = await UserController.addUser(addOptions);
 
 	res.send(result);
+});
+
+//removes the specified user from the database
+app.delete('/:userId', async function (req, res) {
+	const result = await UserController.deleteUserById(req.params.userId);
+	
+	res.status(200).send(result);
 });
 
 module.exports = app;

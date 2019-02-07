@@ -45,7 +45,8 @@ var Post = new Schema({
 		type: { type: String },
 		coordinates: {
 			type: [Number],
-			required: true}
+			required: true
+		}
 	},
 	tags: {
 		type: [String],

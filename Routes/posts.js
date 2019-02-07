@@ -24,14 +24,13 @@ app.get('/:postId', async function (req, res) {
 //TODO file upload handling
 //TODO validate post adding
 app.post('/', async (req, res) => {
-	let addOptions = {
+	const addOptions = {
 		uploaderId: req.body.userId,
 		restaurantId: req.body.restaurantId,
 		restaurantRating: req.body.restaurantRating,
 		description: req.body.description,
 		longitude: req.body.longitude,
-		latitude: req.body.latitude,
-		tags: []
+		latitude: req.body.latitude
 	};
 	if (req.body.tags) {
 		updateOptions.tags = req.body.tags.split[","]; //must be comma separated string

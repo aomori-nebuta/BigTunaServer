@@ -5,49 +5,52 @@ var User = require('../Models/User');
 class UserController {
 	//getters
 	static getUserById(id) {
-		return User.find({userId: id}, (err, userInfo) => {
-			if (err) {
-				return console.error(err);
-			}
-
-			return userInfo;
-		});
+		return User.find({ _id: Mongoose.Types.ObjectId(id) });
 	}
 
 	//setters
-	static addUser(userId, userName, profileUri) {
-		var newUser = new User({
-			userId: userId,
-			userName: userName,
-			profileUri: profileUri
-		});
-
-		newUser.save((err, success) => {
-			if (err) {
-				return console.error(err);
+	static addUser(addOptions) {
+		const addQuery = {
+			userName: addOptions.userName,
+			fullName: addOptions.fullName,
+			location: {
+				type: "Point",
+				coordinates: [parseInt(addOptions.longitude), parseInt(addOptions.latitude)]
 			}
+		}
+		if (addOptions.profileUri) {
+			addQuery.profileUri = addOptions.profileUri
+		}
+		if (addOptions.description) {
+			addQuery.description = addOptions.description;
+		}
 
-			return success;
-		});
+		var newUser = new User(addQuery);
+
+		return newUser.save();
 	}
 
 	static updateUser(updateOptions) {
 		const updateQuery = {};
-		if (updateOptions.userName) {
-			updateQuery.userName = updateOptions.userName;
-		}
-		if (updateOptions.profileUri) {
-			updateQuery.profileUri = updateOptions.profileUri;
-		}
 
-		return User.updateOne({ userId: updateOptions.userId }, { $set: updateQuery }, (err, success) => {
-			if (err) {
-				return console.error(err);
+		Object.entries(updateOptions).forEach((entry) => {
+			if (entry[1]) {
+				updateQuery[entry[0]] = entry[1];
 			}
-
-			//TODO
-			return "success";
 		});
+
+		if (updateOptions.longitude && updateOptions.latitude) {
+			updateQuery.location = {
+				type: "Point",
+				coordinates: [parseInt(updateOptions.longitude), parseInt(updateOptions.latitude)]
+			}
+		}
+
+		return User.updateOne({ _id: Mongoose.Types.ObjectId(updateOptions.userId) }, { $set: updateQuery });
+	}
+
+	static deleteUserById(userId) {
+		return User.findOneAndDelete({ _id: Mongoose.Types.ObjectId(userId) });
 	}
 }
 

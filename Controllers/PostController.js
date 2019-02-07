@@ -61,7 +61,7 @@ class PostController {
 			updateQuery.profileUri = updateOptions.profileUri;
 		}
 
-		return Post.updateOne({ userId: updateOptions.userId }, { $set: updateQuery });
+		return Post.updateOne({ _id: Mongoose.Types.ObjectId(updateOptions.userId) }, { $set: updateQuery });
 	}
 
 	static interactWithPost(interactOptions) {

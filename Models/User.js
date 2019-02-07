@@ -8,10 +8,30 @@ var User = new Schema({
 	userName: {
 		type: String,
 		required: true
-	},
-	profileUri: String,
-	//followers: [String],
-	posts: [String]
+	}, //editable
+	fullName: {
+		type: String,
+		required: true
+	}, //editable
+	profileUri: {
+		type: String,
+		default: "empty"
+	}, //editable
+	description: {
+		type: String,
+		default: ""
+	}, //editable
+	location: {
+		type: { type: String },
+		coordinates: {
+			type: [Number],
+			required: true
+		},
+	}, //editable
+	posts: {
+		type: [String],
+		default: []
+	} //editable
 });
 
 module.exports = mongoose.model('User', User);
