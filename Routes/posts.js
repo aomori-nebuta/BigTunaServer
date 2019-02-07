@@ -3,6 +3,7 @@
 require('express-async-errors');
 const app = require('express')();
 
+var UserController = require('../Controllers/UserController.js');
 const PostController = require('../Controllers/PostController.js');
 
 //gets a list of posts, must send user auth token
@@ -36,10 +37,15 @@ app.post('/', async (req, res) => {
 		updateOptions.tags = req.body.tags.split[","]; //must be comma separated string
 	}
 	//let files = req.files;
-	const result = await PostController.addPost(addOptions);
+	const postResult = await PostController.addPost(addOptions);
+	console.log("postResults: ",postResult);
+	const userResult = await UserController.updateUserPost({
+		userId: req.body.userId,
+		postId: postResult._id
+	});
 
 	res.status(201).send({
-		response: result
+		response: userResult
 	});
 });
 
@@ -106,10 +112,14 @@ app.patch('/:postId', async function (req, res) {
 		
 });
 
+//TODO, also remove post from associated user's post field
+//to do this, we should pass in the userid
 //delete a post
 app.delete('/:postId', async function (req, res) {
 	const result = await PostController.deletePostById(req.params.postId);
 	
+	//TODO
+	//UserController.DeleteUserPost()
 	res.status(200).send(result);
 });
 

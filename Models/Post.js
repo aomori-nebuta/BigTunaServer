@@ -29,10 +29,10 @@ var Post = new Schema({
 
 	//display info
 	uploaderId: {
-		type: String,
+		type: Schema.Types.ObjectId,
 		required: true
 	},
-	restaurantId: String, //editable
+	restaurantId: Schema.Types.ObjectId, //editable
 	restaurantRating: { type: Number,
 		min: 1,
 		max: 5
@@ -53,15 +53,15 @@ var Post = new Schema({
 		default: []
 	}, //editable
 	likedBy: {
-		type: [String],
+		type: [Schema.Types.ObjectId],
 		default: []
 	}, //editable
 	commentedBy: {
-		type: [String],
+		type: [Schema.Types.ObjectId],
 		default: []
 	}, //editable
 	bookmarkedBy: {
-		type: [String],
+		type: [Schema.Types.ObjectId],
 		default: []
 	}, //editable
 

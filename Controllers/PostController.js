@@ -30,38 +30,38 @@ class PostController {
 	}
 
 	//setters
-	static addPost(addOptions) {
-		const addQuery = {
-			uploaderId: addOptions.uploaderId,
-			restaurantId: addOptions.restaurantId,
-			description: addOptions.description,
+	static addPost(options) {
+		const query = {
+			uploaderId: Mongoose.Types.ObjectId(options.uploaderId),
+			restaurantId: Mongoose.Types.ObjectId(options.restaurantId),
+			description: options.description,
 			location: {
 				type: "Point",
-				coordinates: [parseInt(addOptions.longitude), parseInt(addOptions.latitude)]
+				coordinates: [parseInt(options.longitude), parseInt(options.latitude)]
 			}
 		};
-		if (addOptions.tags) {
-			addQuery.tags = addOptions.tags;
+		if (options.tags) {
+			query.tags = options.tags;
 		}
-		if (addOptions.restaurantRating) {
-			addQuery.restaurantRating = addOptions.restaurantRating;
+		if (options.restaurantRating) {
+			query.restaurantRating = options.restaurantRating;
 		}
 
-		var newPost = new Post(addQuery);
+		var newPost = new Post(query);
 
 		return newPost.save();
 	}
 
-	static updatePost(updateOptions) {
-		const updateQuery = {};
-		if (updateOptions.description) {
-			updateQuery.description = updateOptions.description;
+	static updatePost(options) {
+		const query = {};
+		if (options.description) {
+			query.description = options.description;
 		}
-		if (updateOptions.addTags) {
-			updateQuery.profileUri = updateOptions.profileUri;
+		if (options.addTags) {
+			query.profileUri = options.profileUri;
 		}
 
-		return Post.updateOne({ _id: Mongoose.Types.ObjectId(updateOptions.userId) }, { $set: updateQuery });
+		return Post.updateOne({ _id: Mongoose.Types.ObjectId(options.userId) }, { $set: query });
 	}
 
 	static interactWithPost(interactOptions) {

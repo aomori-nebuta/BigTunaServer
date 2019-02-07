@@ -29,7 +29,7 @@ var User = new Schema({
 		},
 	}, //editable
 	posts: {
-		type: [String],
+		type: [Schema.Types.ObjectId],
 		default: []
 	} //editable
 });

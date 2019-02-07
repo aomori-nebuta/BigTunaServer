@@ -9,45 +9,52 @@ class UserController {
 	}
 
 	//setters
-	static addUser(addOptions) {
-		const addQuery = {
-			userName: addOptions.userName,
-			fullName: addOptions.fullName,
+	static addUser(options) {
+		const query = {
+			userName: options.userName,
+			fullName: options.fullName,
 			location: {
 				type: "Point",
-				coordinates: [parseInt(addOptions.longitude), parseInt(addOptions.latitude)]
+				coordinates: [parseInt(options.longitude), parseInt(options.latitude)]
 			}
 		}
-		if (addOptions.profileUri) {
-			addQuery.profileUri = addOptions.profileUri
+		if (options.profileUri) {
+			query.profileUri = options.profileUri
 		}
-		if (addOptions.description) {
-			addQuery.description = addOptions.description;
+		if (options.description) {
+			query.description = options.description;
 		}
 
-		var newUser = new User(addQuery);
+		var newUser = new User(query);
 
 		return newUser.save();
 	}
 
-	static updateUser(updateOptions) {
-		const updateQuery = {};
+	static updateUser(options) {
+		const query = {};
 
-		Object.entries(updateOptions).forEach((entry) => {
+		Object.entries(options).forEach((entry) => {
 			if (entry[1]) {
-				updateQuery[entry[0]] = entry[1];
+				query[entry[0]] = entry[1];
 			}
 		});
 
-		if (updateOptions.longitude && updateOptions.latitude) {
-			updateQuery.location = {
+		if (options.longitude && options.latitude) {
+			query.location = {
 				type: "Point",
-				coordinates: [parseInt(updateOptions.longitude), parseInt(updateOptions.latitude)]
+				coordinates: [parseInt(options.longitude), parseInt(options.latitude)]
 			}
 		}
 
-		return User.updateOne({ _id: Mongoose.Types.ObjectId(updateOptions.userId) }, { $set: updateQuery });
+		return User.updateOne({ _id: Mongoose.Types.ObjectId(options.userId) }, { $set: query });
 	}
+
+	static updateUserPost(options) {
+		console.log("options: ", options);
+		return User.updateOne({ _id: Mongoose.Types.ObjectId(options.userId) }, { $push: { posts: options.postId } });
+	}
+
+	//static deleteUserPost() {}
 
 	static deleteUserById(userId) {
 		return User.findOneAndDelete({ _id: Mongoose.Types.ObjectId(userId) });
