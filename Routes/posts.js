@@ -76,9 +76,10 @@ app.post('/', async (req, res) => {
 	}
 	//let files = req.files;
 	const postResult = await PostController.addPost(options);
-	const userResult = await UserController.updateUserPost({
+	const userResult = await UserController.modifyUserPost({
 		userId: req.body.userId,
-		postId: postResult._id
+		postId: postResult._id,
+		action: "$push"
 	});
 
 	res.status(201).send(userResult);
@@ -133,15 +134,20 @@ app.patch('/:postId', async function (req, res) {
 		
 });
 
-//TODO, also remove post from associated user's post field
 //to do this, we should pass in the userid
 //delete a post
 app.delete('/:postId', async function (req, res) {
-	const result = await PostController.deletePostById(req.params.postId);
+	const postResult = await PostController.deletePostById(req.params.postId);
 	
-	//TODO
-	//UserController.DeleteUserPost()
-	res.status(200).send(result);
+	//remove that post from the users collection as well
+	options = {
+		postId: req.params.postId,
+		userId: postResult.userId,
+		action: "$pull"
+	} 
+	const userResult = await UserController.modifyUserPost(options);
+
+	res.status(200).send(userResult);
 });
 
 

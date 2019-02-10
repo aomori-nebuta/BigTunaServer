@@ -5,7 +5,9 @@ var User = require('../Models/User');
 class UserController {
 	//getters
 	static getUserById(id) {
-		return User.find({ _id: Mongoose.Types.ObjectId(id) });
+		return User.find({
+			_id: Mongoose.Types.ObjectId(id)
+		});
 	}
 
 	//setters
@@ -49,14 +51,20 @@ class UserController {
 		return User.updateOne({ _id: Mongoose.Types.ObjectId(options.userId) }, { $set: query });
 	}
 
-	static updateUserPost(options) {
-		return User.updateOne({ _id: Mongoose.Types.ObjectId(options.userId) }, { $push: { posts: options.postId } });
+	static modifyUserPost(options) {
+		return User.updateOne({
+			_id: Mongoose.Types.ObjectId(options.userId)
+		}, {
+			[options.action]: {
+				posts: options.postId
+			}
+		});
 	}
 
-	//static deleteUserPost() {}
-
 	static deleteUserById(userId) {
-		return User.findOneAndDelete({ _id: Mongoose.Types.ObjectId(userId) });
+		return User.findOneAndDelete({
+			_id: Mongoose.Types.ObjectId(userId)
+		});
 	}
 }
 
