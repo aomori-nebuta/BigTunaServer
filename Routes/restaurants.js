@@ -5,12 +5,6 @@ const app = require('express')();
 
 const RestaurantController = require('../Controllers/RestaurantController.js');
 
-
-//TODO do we need to get a list of restaurants anywhere?
-//we may not need to support this route
-app.get('/', async function (req, res, next) {
-});
-
 //gets information for the given restaurant id
 app.get('/:restaurantId', async function (req, res) {
 	const result = await RestaurantController.getRestaurantById(req.params.restaurantId);
