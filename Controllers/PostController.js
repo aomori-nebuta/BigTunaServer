@@ -28,8 +28,8 @@ class PostController {
 		if (options.tags) {
 			query.tags = options.tags;
 		}
-		if (options.restaurantRating) {
-			query.restaurantRating = options.restaurantRating;
+		if (options.rating) {
+			query.rating = options.rating;
 		}
 
 		var newPost = new Post(query);

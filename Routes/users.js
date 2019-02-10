@@ -23,8 +23,8 @@ app.get('/:userId/posts', async function (req, res) {
 	res.send(result);
 });
 
-//updates user information for the given id
 //TODO security/user auth token
+//updates user information for the given id
 app.patch('/:userId', async function (req, res) {
 	const options = {
 		userId: req.params.userId,

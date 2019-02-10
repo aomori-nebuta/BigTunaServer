@@ -51,7 +51,7 @@ class UserController {
 		return User.updateOne({ _id: Mongoose.Types.ObjectId(options.userId) }, { $set: query });
 	}
 
-	static modifyUserPost(options) {
+	static modifyUserPosts(options) {
 		return User.updateOne({
 			_id: Mongoose.Types.ObjectId(options.userId)
 		}, {

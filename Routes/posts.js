@@ -5,6 +5,7 @@ const app = require('express')();
 
 var UserController = require('../Controllers/UserController.js');
 const PostController = require('../Controllers/PostController.js');
+const RestaurantController = require('../Controllers/RestaurantController.js');
 
 const PostsActionType = Object.freeze({
 	DISCOVER: "discover",
@@ -28,6 +29,7 @@ app.get('/', async function (req, res) {
 					$all: req.query.tags.replace(/\s\s*/g,"").trim().split(",") //must be comma separated string
 				}
 			}
+			
 			//TODO, throw incorrect format error if some but not all of these params exist
 			if (req.query.longitude && req.query.latitude && req.query.radius) {
 				filter.location = {
@@ -60,13 +62,17 @@ app.get('/:postId', async function (req, res) {
 });
 
 //TODO food post
+//TODO add restaurant info if it doesn't already exist
+//TODO add to tags field in restaurant collection
+//TODO add to ratings field in restaurant collection
+//TODO add to posts field in restaurant collection
 //TODO file upload handling
 //TODO validate post adding
 app.post('/', async (req, res) => {
 	const options = {
 		userId: req.body.userId,
 		restaurantId: req.body.restaurantId,
-		restaurantRating: req.body.restaurantRating,
+		rating: req.body.rating,
 		description: req.body.description,
 		longitude: req.body.longitude,
 		latitude: req.body.latitude
@@ -76,7 +82,7 @@ app.post('/', async (req, res) => {
 	}
 	//let files = req.files;
 	const postResult = await PostController.addPost(options);
-	const userResult = await UserController.modifyUserPost({
+	const userResult = await UserController.modifyUserPosts({
 		userId: req.body.userId,
 		postId: postResult._id,
 		action: "$push"
@@ -94,7 +100,7 @@ app.patch('/:postId', async function (req, res) {
 	switch (req.query.action) {
 		case PostsActionType.EDIT: {
 			options.restaurantId = Mongoose.Types.ObjectId(req.body.restaurantId);
-			options.restaurantRating = parseInt(req.body.restaurantRating);
+			options.rating = parseInt(req.body.rating);
 			options.description = req.body.description;
 			if (req.body.tags) {
 				options.tags = req.body.tags.replace(/\s\s*/g,"").trim().split(","); //must be comma separated string
@@ -134,20 +140,28 @@ app.patch('/:postId', async function (req, res) {
 		
 });
 
-//to do this, we should pass in the userid
 //delete a post
 app.delete('/:postId', async function (req, res) {
 	const postResult = await PostController.deletePostById(req.params.postId);
 	
-	//remove that post from the users collection as well
-	options = {
+	//remove that post from the user collection as well
+	const userOptions = {
 		postId: req.params.postId,
 		userId: postResult.userId,
 		action: "$pull"
 	} 
-	const userResult = await UserController.modifyUserPost(options);
+	const userResult = await UserController.modifyUserPosts(userOptions);
 
-	res.status(200).send(userResult);
+	//remove that post from the restaurant collection as well
+	const restaurantOptions = {
+		postId: req.params.postId,
+		restaurantId: postResult.restaurantId,
+		action: "$pull",
+
+	};
+	const restaurantResult = await RestaurantController.modifyRestaurantPosts(restaurantOptions);
+		
+	res.status(200).send(restaurantResult);
 });
 
 

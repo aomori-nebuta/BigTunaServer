@@ -48,8 +48,11 @@ var Post = new Schema({
 		type: Schema.Types.ObjectId,
 		required: true
 	},
-	restaurantId: Schema.Types.ObjectId, //editable
-	restaurantRating: { type: Number,
+	restaurantId: {
+		type: Schema.Types.ObjectId,
+		required: true
+	}, //editable
+	rating: { type: Number,
 		min: 1,
 		max: 5
 	}, //editable
@@ -69,6 +72,10 @@ var Post = new Schema({
 		default: []
 	}, //editable
 	likes: {
+		type: [Schema.Types.ObjectId],
+		default: []
+	}, //editable
+	helpful: {
 		type: [Schema.Types.ObjectId],
 		default: []
 	}, //editable
