@@ -15,7 +15,7 @@ app.get('/:userId', async function (req, res) {
 //gets all the posts made by the given user id
 app.get('/:userId/posts', async function (req, res) {
 	filter = {
-		uploaderId: req.params.userId
+		userId: req.params.userId
 	}
 
 	const result = await PostController.getPosts(filter);

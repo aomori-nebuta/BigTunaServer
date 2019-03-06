@@ -1,4 +1,6 @@
-const express = require('express')
+const express = require('express');
+const fs = require('fs');
+const https = require('https');
 const app = express();
 const routes = require('./Routes/routes');
 const bb = require('express-busboy');
@@ -39,9 +41,20 @@ var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
 
-var server = app.listen(8000, function() {
-  var host = server.address().address
-  var port = server.address().port
+//TODO get rid of http server once we start making https calls on the frontend
+const httpServer = app.listen(8000, () => {
+  var host = httpServer.address().address
+  var port = httpServer.address().port
 
   console.log("Example app listening at http://%s:%s", host, port)
+});
+
+const httpsServer = https.createServer({
+  key: fs.readFileSync('server.key'),
+  cert: fs.readFileSync('server.cert')
+}, app).listen(8080, () => {
+  var host = httpsServer.address().address
+  var port = httpsServer.address().port
+
+  console.log("Example app listening at https://%s:%s", host, port)
 });

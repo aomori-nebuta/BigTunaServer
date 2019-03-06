@@ -5,7 +5,7 @@ var User = require('../Models/User');
 class UserController {
 	//getters
 	static getUserById(id) {
-		return User.find({
+		return User.findOne({
 			_id: Mongoose.Types.ObjectId(id)
 		});
 	}
