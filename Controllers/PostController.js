@@ -31,12 +31,16 @@ class PostController {
 		if (options.rating) {
 			query.rating = options.rating;
 		}
+		if (options.items) {
+			query.items = options.items;
+		}
 
 		var newPost = new Post(query);
 
 		return newPost.save();
 	}
 
+	//TODO support adding/deleting images
 	static updatePost(options) {
 		const query = {};
 

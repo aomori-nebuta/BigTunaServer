@@ -1,4 +1,7 @@
 require('express-async-errors');
+
+const multer = require('multer');
+const upload = multer();
 const app = require('express')();
 
 var UserController = require('../Controllers/UserController.js');
@@ -43,6 +46,9 @@ app.patch('/:userId', async function (req, res) {
 
 //adds a user to the database, used by the auth service when creating a new account
 app.post('/', async function (req, res) {
+
+	console.log("req.body: ", req.body);
+
 	const options = {
 		userName: req.body.userName,
 		fullName: req.body.fullName,

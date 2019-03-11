@@ -1,7 +1,9 @@
 //TODO individual error handling
 //see https://thecodebarbarian.com/80-20-guide-to-express-error-handling
 require('express-async-errors');
+const util = require('util');
 const app = require('express')();
+const upload = require('../Utilities/fileupload');
 
 var UserController = require('../Controllers/UserController.js');
 const PostController = require('../Controllers/PostController.js');
@@ -29,7 +31,7 @@ app.get('/', async function (req, res) {
 					$all: req.query.tags.replace(/\s\s*/g,"").trim().split(",") //must be comma separated string
 				}
 			}
-			
+
 			//TODO, throw incorrect format error if some but not all of these params exist
 			if (req.query.longitude && req.query.latitude && req.query.radius) {
 				filter.location = {
@@ -63,12 +65,13 @@ app.get('/:postId', async function (req, res) {
 
 //TODO food post
 //TODO add restaurant info if it doesn't already exist
+//TODO handle restaurant item specific things
 //TODO add to tags field in restaurant collection
 //TODO add to ratings field in restaurant collection
 //TODO add to posts field in restaurant collection
-//TODO file upload handling
 //TODO validate post adding
-app.post('/', async (req, res) => {
+app.post('/', upload.array('images'), async (req, res) => {
+	
 	const options = {
 		userId: req.body.userId,
 		restaurantId: req.body.restaurantId,
@@ -80,7 +83,25 @@ app.post('/', async (req, res) => {
 	if (req.body.tags) {
 		options.tags = req.body.tags.replace(/\s\s*/g,"").trim().split(","); //must be comma separated string
 	}
-	//let files = req.files;
+	if (req.files) {
+		options.items = [];
+
+		for (const i in req.files) {
+			const file = req.files[i];
+
+			const foodInfo = {
+				imageUri: file.location,
+				//how do we get all this information? maybe tie to image name?
+				description: "TODO",
+				menuItemId: "TODO", //need to rethink this design
+				priceRange: 5, //TODO
+				recommended: true //TODO
+			}
+
+			options.items.push(foodInfo);
+		}
+	}
+
 	const postResult = await PostController.addPost(options);
 	const userResult = await UserController.modifyUserPosts({
 		userId: req.body.userId,

@@ -1,14 +1,18 @@
 const express = require('express');
 const fs = require('fs');
+const dotenv = require('dotenv');
 const https = require('https');
-const app = express();
+const aws = require('aws-sdk');
 const routes = require('./Routes/routes');
-const bb = require('express-busboy');
-bb.extend(app, {
-	upload: true
-});
+const bodyParser = require('body-parser');
 
-app.use(express.static('public'));
+dotenv.config();
+
+const app = express();
+
+//apply middleware
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 //Routes
 app.use('/', routes);
@@ -30,8 +34,7 @@ app.use((err, req, res, next) => {
 var mongoose = require('mongoose');
 
 //Set up default mongoose connection
-var mongoDbUri = 'mongodb://127.0.0.1/store';
-mongoose.connect(mongoDbUri, {
+mongoose.connect(process.env.MONGO_URI, {
 	useCreateIndex: true,
 	useNewUrlParser: true,
 });
@@ -41,20 +44,37 @@ var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
 
+
+aws.config.update({
+    // Your SECRET ACCESS KEY from AWS should go here,
+    // Never share it!
+    // Setup Env Variable, e.g: process.env.SECRET_ACCESS_KEY
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    // Not working key, Your ACCESS KEY ID from AWS should go here,
+    // Never share it!
+    // Setup Env Variable, e.g: process.env.ACCESS_KEY_ID
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    region: process.env.AWS_REGION // region of your bucket
+});
+
+
+
 //TODO get rid of http server once we start making https calls on the frontend
-const httpServer = app.listen(8000, () => {
+const httpServer = app.listen(process.env.PORT, () => {
   var host = httpServer.address().address
   var port = httpServer.address().port
 
-  console.log("Example app listening at http://%s:%s", host, port)
+  console.log(`Example app listening at http://${host}:${port}`);
 });
 
+/*
 const httpsServer = https.createServer({
   key: fs.readFileSync('server.key'),
   cert: fs.readFileSync('server.cert')
-}, app).listen(8080, () => {
+}, app).listen(process.env.SECURE_PORT, () => {
   var host = httpsServer.address().address
   var port = httpsServer.address().port
 
   console.log("Example app listening at https://%s:%s", host, port)
 });
+*/
