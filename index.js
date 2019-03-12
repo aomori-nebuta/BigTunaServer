@@ -5,6 +5,7 @@ const https = require('https');
 const aws = require('aws-sdk');
 const routes = require('./Routes/routes');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 
 dotenv.config();
 
@@ -31,10 +32,8 @@ app.use((err, req, res, next) => {
   res.json({ error: err.message});
 });
 
-var mongoose = require('mongoose');
-
 //Set up default mongoose connection
-mongoose.connect(process.env.MONGO_URI, {
+mongoose.connect(process.env.MONGO_URI_REMOTE, {
 	useCreateIndex: true,
 	useNewUrlParser: true,
 });
@@ -60,7 +59,7 @@ aws.config.update({
 
 
 //TODO get rid of http server once we start making https calls on the frontend
-const httpServer = app.listen(process.env.PORT, () => {
+const httpServer = app.listen(process.env.PORT, process.env.LISTENING_ADDRESS, () => {
   var host = httpServer.address().address
   var port = httpServer.address().port
 
