@@ -17,7 +17,7 @@ class UserController {
 			fullName: options.fullName,
 			location: {
 				type: "Point",
-				coordinates: [parseInt(options.longitude), parseInt(options.latitude)]
+				coordinates: [parseFloat(options.longitude), parseFloat(options.latitude)]
 			}
 		}
 		if (options.profileUri) {
@@ -44,7 +44,7 @@ class UserController {
 		if (options.longitude && options.latitude) {
 			query.location = {
 				type: "Point",
-				coordinates: [parseInt(options.longitude), parseInt(options.latitude)]
+				coordinates: [parseFloat(options.longitude), parseFloat(options.latitude)]
 			}
 		}
 

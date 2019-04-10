@@ -22,7 +22,7 @@ class PostController {
 			description: options.description,
 			location: {
 				type: "Point",
-				coordinates: [parseInt(options.longitude), parseInt(options.latitude)]
+				coordinates: [parseFloat(options.longitude), parseFloat(options.latitude)]
 			}
 		};
 		if (options.tags) {
@@ -53,7 +53,7 @@ class PostController {
 		if (options.longitude && options.latitude) {
 			query.location = {
 				type: "Point",
-				coordinates: [parseInt(options.longitude), parseInt(options.latitude)]
+				coordinates: [parseFloat(options.longitude), parseFloat(options.latitude)]
 			}
 		}
 
